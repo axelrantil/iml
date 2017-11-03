@@ -11,7 +11,6 @@ knearest=function(data,k,newdata) {
   Xn=Xn/matrix(sqrt(rowSums(Xn^2)), nrow=n2, ncol=p-1) #Normalized
   
   C = X%*%t(Xn) 
-  
   D = matrix(1, nrow(C), ncol(C)) - C #distance
   
   for (i in 1:n2 ){
@@ -56,7 +55,7 @@ prob1 <- knearest(train, k = 5, test)
 pred1 <- round(prob1)
 
 acc1 <- sum(pred1==test[,ncol(test)])/length(pred1)
-acc1
+missclass1 = 1 - acc1
 
 table("pred"=pred1, "true"=train[,ncol(test)])
 
@@ -68,4 +67,23 @@ library(kknn)
 pred2 <- kknn(Spam~., train, test, k=5, kernel="cos")
 pred2$prob
 
-apply(pred2$prob,1, which.max)
+pred2 <- apply(pred2$prob,1, which.max) - 1
+
+acc2 <- sum(pred2==test[,ncol(test)])/length(pred2)
+missclass2 = 1 - acc2
+
+table("pred"=pred2, "true"=train[,ncol(test)])
+
+prob1 <- knearest(train, k = 5, test)
+prob2 <- kknn(Spam~., train, test, k=5, kernel="cos")$prob[,1]
+
+as.numeric(prob1[prob1==0.05])
+
+errorMatrix
+
+for (pi in seq(0.05, 0.95, by=0.05)){
+  as.numeric(prob1[prob1>pi])
+}
+
+
+
