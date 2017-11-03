@@ -25,10 +25,6 @@ knearest=function(data,k,newdata) {
     targets <- data[kNN, p]
     Prob[i] <- sum(targets==1)/k
     
-    #MISSING: use the computed distance matrix to find 
-    #which observations are the nearest neighbors to case #i
-    #MISSING: derive probability value 'Prob[i]' by using the
-    #target values of the nearest neighbors
   }
   return(Prob)
 }
@@ -55,7 +51,6 @@ id=sample(1:n, floor(n*0.5))
 train=data[id,]
 test=data[-id,]
 
-debugonce(knearest)
 prob1 <- knearest(train, k = 5, test)
 
 pred1 <- round(prob1)
@@ -70,5 +65,7 @@ table("pred"=pred1, "true"=train[,ncol(test)])
 #install.packages("kknn")
 library(kknn)
 
-pred2 <- kknn(formula(train), , kernel="cos")
+pred2 <- kknn(Spam~., train, test, k=5, kernel="cos")
+pred2$prob
 
+apply(pred2$prob,1, which.max)
