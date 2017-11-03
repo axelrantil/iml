@@ -10,9 +10,9 @@ knearest=function(data,k,newdata) {
   
   Xn=Xn/matrix(sqrt(rowSums(Xn^2)), nrow=n1, ncol=p-1) #Normalized
   
-  C = X%*%t(Xn)
+  C = X%*%t(Xn) 
   
-  D = matrix(1, dim(C)[1], dim(C)[2]) - C
+  D = matrix(1, dim(C)[1], dim(C)[2]) - C #distance
   
   for (i in 1:n2 ){
     kNN <- which.min(D[,i])
