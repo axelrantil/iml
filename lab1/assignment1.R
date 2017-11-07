@@ -28,14 +28,17 @@ knearest=function(data,k,newdata) {
   return(Prob)
 }
 
+# Y true value
+# Yfit pred
+# p probabilities, m antal probabilities
 ROC=function(Y, Yfit, p){
-  m=length(p)
+  m=length(p) 
   TPR=numeric(m)
   FPR=numeric(m)
   for(i in 1:m){
     t=table(Yfit>p[i], Y)
-    TPR[i]=#insert formula for TPR
-    FPR[i]=#insert formula for FPR
+    TPR[i]= t[1,1]/sum(t[1,])
+    FPR[i]= t[2,1]/sum(t[2,])
   }
   return (list(TPR=TPR,FPR=FPR))
 }
@@ -61,7 +64,7 @@ table("pred"=pred1, "true"=train[,ncol(test)])
 
 # 63% for k = 5, 65,2% for k = 1
 
-#install.packages("kknn")
+install.packages("kknn")
 library(kknn)
 
 pred2 <- kknn(Spam~., train, test, k=5, kernel="cos")
@@ -77,13 +80,22 @@ table("pred"=pred2, "true"=train[,ncol(test)])
 prob1 <- knearest(train, k = 5, test)
 prob2 <- kknn(Spam~., train, test, k=5, kernel="cos")$prob[,1]
 
-as.numeric(prob1[prob1==0.05])
+errorMatrix <- 1 - sum(as.numeric(prob1>0.05)==test[,ncol(test)])/length(prob1)
+errorMatrix <- c(errorMatrix, 1 - sum(as.numeric(prob2>0.05)==test[,ncol(test)])/length(prob2))
+
+for (pi in seq(0.1, 0.95, by=0.05)){
+  errorMatrix <- c(errorMatrix, 1 - sum(as.numeric(prob1>pi)==test[,ncol(test)])/length(prob1))
+  errorMatrix <- c(errorMatrix, 1 - sum(as.numeric(prob2>pi)==test[,ncol(test)])/length(prob2))
+}
+
+errorMatrix <- matrix(errorMatrix, ncol=2, byrow = TRUE)
+
+colnames(errorMatrix) <- c("knearest", "kknn")
+rownames(errorMatrix) <- seq(0.05, 0.95, by=0.05)
 
 errorMatrix
 
-for (pi in seq(0.05, 0.95, by=0.05)){
-  as.numeric(prob1[prob1>pi])
-}
+ROC(test[,ncol(test)],prob1, seq(0.05, 0.95, by=0.05))
 
-
+ROC(test[,ncol(test)],prob2, seq(0.05, 0.95, by=0.05))
 
