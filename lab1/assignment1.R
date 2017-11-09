@@ -9,8 +9,8 @@ ROC=function(Y, Yfit, p){
   FPR=numeric(m)
   for(i in 1:m){
     t=table(Yfit>p[i], Y)
-    TPR[i]= t[2,2]/sum(t[2,])
-    FPR[i]= t[1,2]/sum(t[1,])
+    TPR[i]= t[2,2]/sum(t[,2])
+    FPR[i]= t[2,1]/sum(t[,1])
   }
   return (list(TPR=TPR,FPR=FPR))
 }
@@ -100,15 +100,17 @@ rownames(errorMatrix) <- seq(0.05, 0.95, by=0.05)
 
 errorMatrix
 
-#debugonce(ROC)
+debugonce(ROC)
 
 rocProb1 <- ROC(test[,ncol(test)],prob1, seq(0.05, 0.95, by=0.05))
 
-plot(rocProb1$FPR, rocProb1$TPR, xlim =c(0,1), ylim=c(0,1))
+plot(rocProb1$FPR, rocProb1$TPR, type="l", xlim =c(0,1), ylim=c(0,1), col="red")
 
-rocProb2 <- ROC(test[,ncol(test)],prob2, seq(0.05, 0.95, by=0.05))
+rocProb2 <- ROC(test[,ncol(test)],prob2, seq(0, 1, by=0.05))
 
-lines(rocProb2$FPR, rocProb2$TPR)
+lines(rocProb2$FPR, rocProb2$TPR, col="green") ## kkNN better
+
+## Add legend
 
 
 
