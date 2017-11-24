@@ -10,7 +10,7 @@ plot(spectrum$Moisture, spectrum$Protein)
 
 ### Task 2 ###
 
-#Theory.
+#Theory. MSE is good since it is the log likelihood of the normal distribtuion (fråga Isak)
 
 ### Task 3 ###
 
@@ -26,6 +26,7 @@ MSETest <- numeric(maxDegree)
 for (i in 1:maxDegree){
   model <- lm(formula = Moisture ~ poly(Protein,degree=i, raw=TRUE), data=train)
   MSETrain[i] <- mean((summary(model)$residuals)^2)
+  #MSETrain[i] <- mean((predict.lm(model,train)-test$Moisture)^2)
   MSETest[i] <- mean((predict.lm(model,test)-test$Moisture)^2)
 }
 
@@ -48,7 +49,7 @@ names(step$coefficients)
 # 64 variables 
 
 ### Task 4 ###
-#install.packages("glmnet")
+install.packages("glmnet")
 
 library(glmnet)
 
@@ -62,10 +63,10 @@ plot(lassoModel, xvar="lambda", label=TRUE)
 
 ### Task 5 ###
 
-installed.packages("cvTools")
+#installed.packages("cvTools")
 
 lassoCV <- cv.glmnet(as.matrix(data), lambda=seq(0,7, by=0.01), type.measure = "mse", spectrum$Fat, alpha=1, family = "gaussian", nfolds = 10)
 
-plot(lassoCV$lambda, lassoCV$cvm)
+plot(lassoCV)
 
 
