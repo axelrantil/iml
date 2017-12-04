@@ -15,15 +15,15 @@ sprintf("%2.3f", lambda/sum(lambda) * 100)
 
 screeplot(pcd)
 
-plot(pcd$x[,1], pcd$x[,2])
+plot(pcd$x[,1], pcd$x[,2], main="PC1 & PC2")
 
 # Yes there are some unusual (outliers) diesel fuels. 
 
 U = pcd$rotation
 
-plot(U[,1])
+plot(U[,1], xlab="Variable", ylab="PC1 loadings")
 
-plot(U[,2])
+plot(U[,2], xlab="Variable", ylab="PC2 loadings")
 
 # The last ten variables explains most of PC2
 
