@@ -50,25 +50,26 @@ res
 fit = tree(good_bad~., data=train, split="deviance")
 
 trainScore = rep(0,9)
-testScore = rep(0,9)
+valScore = rep(0,9)
 
 for (i in 2:9){
   prunedTree = prune.tree(fit, best=i)
   predval = predict(prunedTree, newdata=val, type="tree")
   trainScore[i] = deviance(prunedTree)
-  testScore[i] = deviance(predval)
+  valScore[i] = deviance(predval)
 }
-plot(2:9, trainScore[2:9]/2, type="b", col="red", ylim=c(250,300))
-points(2:9, testScore[2:9], type="b", col="blue")
+plot(2:9, trainScore[2:9]/2, type="b", col="red", ylim=c(250,300), ylab="Deviance", xlab="Number of terminal nodes")
+points(2:9, valScore[2:9], type="b", col="blue")
+legend("bottomleft", c("validation", "train"), col=c("blue", "red"), lty=c(1,1))
 
 best.fit = tree(good_bad~., data=train, split="deviance")
-pruned.best.tree = prune.tree(best.fit, best=which.min(testScore[2:9])+1)
+pruned.best.tree = prune.tree(best.fit, best=which.min(valScore[2:9])+1)
 plot(pruned.best.tree)
 text(pruned.best.tree, pretty = 0) 
 # Best tree, depth is 3 and 3 variables used for splitting the data
 # These are savings, then duration and lastly history in order of importance which makes sence.
 
-Yfit.best <- predict(best.fit, newdata=test, type="class")
+Yfit.best <- predict(pruned.best.tree, newdata=test, type="class")
 tab.best <- table(test$good_bad, Yfit.best)
 
 #0.248
@@ -104,13 +105,19 @@ Yfit.train.nb = predict(fit.nb, newdata=train, type="raw")
 
 Yfit.test.nb = predict(fit.nb, newdata=test,type="raw")
 
-pred.train.nb <- ifelse(Yfit.train.nb[,1] / Yfit.train.nb[,2] > 10, "good", "bad")
+pred.train.nb <- ifelse((Yfit.train.nb[,2] / Yfit.train.nb[,1]) > 10, "pred good", "pred bad")
 
-table(train$good_bad, pred.train.nb)
+tab.nb.train.loss <- table(train$good_bad, pred.train.nb)
 
-pred.test.nb <- ifelse(Yfit.test.nb[,1] / Yfit.test.nb[,2] > 10, "good", "bad")
+error.nb.train.loss <- 1 - sum(diag(tab.nb.train.loss))/sum(tab.nb.train.loss)
 
-table(test$good_bad, pred.test.nb)
+pred.test.nb <- ifelse((Yfit.test.nb[,2] / Yfit.test.nb[,1]) > 10, "pred good", "pred bad")
 
+tab.nb.test.loss <- table(test$good_bad, pred.test.nb)
 
+error.nb.test.loss <- 1 - sum(diag(tab.nb.test.loss))/sum(tab.nb.test.loss)
 
+tab.nb.train.loss
+error.nb.train.loss
+tab.nb.test.loss
+error.nb.test.loss

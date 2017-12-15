@@ -6,22 +6,26 @@ trva <- data.frame(Var, Sin=sin(Var))
 tr <- trva[1:25,] # Training
 va <- trva[26:50,] # Validation
 # Random initialization of the weights in the interval [-1, 1]
-winit <- runif(10, -1, 1)
+winit <- runif(31, -1, 1)
+
 
 mse <- numeric(10)
 for(i in 1:10) {
   f <- as.formula("Sin ~ Var")
-  nn <- neuralnet(f, data=tr, threshold = 5/1000, linear.output=FALSE)
-  print(nn)
-  nn.fit <- lm(nn, tr)
-  summary(nn)
-  pred <- predict(nn.fit, va)
-  mse[i] <- sum(1/25 * (pred-va$Sin)^2)
+  nn <- neuralnet(f, data=tr, hidden=c(10), threshold = i/1000, startweights = winit)
+  pred <- compute(nn, va$Var)
+  mse[i] <- mean((pred$net.result - va$Sin)^2)
 }
 
-plot(mse)
 
-plot(nn <- neuralnet(# Your code here))
-# Plot of the predictions (black dots) and the data (red dots)
-plot(prediction(nn)$rep1)
-points(trva, col = "red")
+plot(1:10, mse, type="b", xlab="Threshold", ylab="MSE on validation data")
+
+best_nn <- neuralnet(f, data=tr, hidden=c(10), threshold = which.min(mse)/1000, startweights = winit)
+#plot(best_nn)
+best_pred <- compute(best_nn, va$Var)$net.result
+
+
+plot(seq(0,10, by=0.001), sin(seq(0,10, by=0.001)), type="l", col="yellow", ylab="Sin", xlab="Var")
+points(va$Var, best_pred)
+points(tr, col = "red") 
+legend("bottomright", c("Sinus", "Training", "Val. pred."), col=c("yellow", "red", "black"), lty=c(1,NA,NA), pch=c(NA,1,1))
