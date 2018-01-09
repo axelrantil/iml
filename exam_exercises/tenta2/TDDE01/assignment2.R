@@ -6,11 +6,15 @@ fit <- glm("Visitors~Time", data=bank, family = poisson(link="log"))
 
 head(bank)
 
+plot(bank$Time, exp(0.174 + 0.4*bank$Time), type="l")
+points(bank$Time, bank$Visitors)
+
+plot(bank$Time, log(bank$Visitors))
+
+
 noonone <- seq(12, 13, by=0.05)
 
-targets = predict(fit, data.frame(Time=noonone), type="response")
-
-data2 = data.frame(Visitors = targets, Time = noonone)
+data2 = data.frame(Visitors = c(), Time = noonone)
 
 plot(data2$Time, data2$Visitors)
 
@@ -27,16 +31,15 @@ rng=function(data, mle){
 
 f1=function(indata){
   fit <- glm("Visitors~Time",data=indata, family = poisson(link="log"))
-  return(predict(fit, newdata=data2, type="response"))
+  mu <- predict(fit, newdata=data2, type="response")
+  mu <- rpois(length(data2$Time), mu)
+  #rpois pga prediktions (lägg på brus) mu (från predikt)
+  return(mu)
 }
 
-res=boot(data=data2, statistic=f1, mle=fit, R=1000, ran.gen=rng, sim="parametric")
-
-summary(res)
+res=boot(data=bank, statistic=f1, mle=fit, R=1000, ran.gen=rng, sim="parametric")
 
 env2=envelope(res)
 
 lines(data2$Time, env2$point[2,], col="red") # Confidence bands
 lines(data2$Time, env2$point[1,], col="red")
-lines(data2$Time, env2$overall[2,], col="chartreuse4") # Prediction bands
-lines(data2$Time, env2$overall[1,], col="chartreuse4")
