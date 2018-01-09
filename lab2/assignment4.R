@@ -9,7 +9,6 @@ spectra$Viscosity = c()
 pcd = prcomp(spectra)
 
 lambda = pcd$sdev^2
-#lambda
 
 sprintf("%2.3f", lambda/sum(lambda) * 100)
 
@@ -35,16 +34,17 @@ ica = fastICA(spectra, 2, alg.typ="parallel", fun="logcosh", alpha=1, method="R"
 
 Wtic = ica$K %*% ica$W
 
-# K is the loadings from original data to the PCA and the W is the loading from PCA to ICA. Wtic is the transformation from originaldata directly to ICA
+# K is the loadings from original data to the PCA and the W is the loading from PCA to ICA. Wtic is the transformation from original data directly to ICA
 
+# Loadings
 plot(Wtic[,1])
-
 plot(Wtic[,2])
 
+# Command below projects the original data Spectra (all variables) into the ICA space.
 icaproj = as.matrix(spectra) %*% as.matrix(Wtic)
 
+# Commands below produces same plots (only rescaled)
 plot(icaproj[,1], icaproj[,2])
-
 plot(ica$S[,1], ica$S[,2])
 
 #install.packages("pls")

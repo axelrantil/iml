@@ -6,22 +6,26 @@ trva <- data.frame(Var, Sin=sin(Var))
 tr <- trva[1:25,] # Training
 va <- trva[26:50,] # Validation
 # Random initialization of the weights in the interval [-1, 1]
-winit <- runif(31, -1, 1)
 
+# Change this if other structure is needed! E.g. 4 hidden layers with 20, 18, 10, 5 neurons would be c(20,18,10,5)
+layers = c(10)
+
+no_weights <- layers[1] + tail(layers, n=1) + sum(layers) + 1 + sum(c(0, layers) * c(layers,0))
+
+winit <- runif(no_weights, -1, 1)
 
 mse <- numeric(10)
 for(i in 1:10) {
   f <- as.formula("Sin ~ Var")
-  nn <- neuralnet(f, data=tr, hidden=c(10), threshold = i/1000, startweights = winit)
+  nn <- neuralnet(f, data=tr, hidden=layers, threshold = i/1000, startweights = winit)
   pred <- compute(nn, va$Var)
   mse[i] <- mean((pred$net.result - va$Sin)^2)
 }
 
-
 plot(1:10, mse, type="b", xlab="Threshold", ylab="MSE on validation data")
 
-best_nn <- neuralnet(f, data=tr, hidden=c(10), threshold = which.min(mse)/1000, startweights = winit)
-#plot(best_nn)
+best_nn <- neuralnet(f, data=tr, hidden=layers, threshold = which.min(mse)/1000, startweights = winit)
+plot(best_nn)
 best_pred <- compute(best_nn, va$Var)$net.result
 
 

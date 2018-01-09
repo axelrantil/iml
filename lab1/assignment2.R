@@ -54,11 +54,16 @@ prior <- function(lambda, theta){
 theta <- seq(0,5,by=0.01)
 
 posterior <- numeric(length(theta))
+l1 <- numeric(length(theta))
+l2 <- numeric(length(theta))
 
 for (i in 1:length(theta)){
-  #print(prod(expDist(x, theta[i]))<prior(lambda=10, theta[i]))
-  posterior[i] <- log(prod(expDist(x, theta[i]))*prior(lambda=10, theta[i]))
+  l1[i] <- loglikelihood(x, theta[i])
+  l2[i] <- log(prior(lambda=10, theta[i]))
+  posterior[i] <- loglikelihood(x, theta[i]) + log(prior(lambda=10, theta[i]))
+  #posterior[i] <- log(prod(expDist(x, theta[i]))*prior(lambda=10, theta[i]))
 }
+
 
 plot(theta, posterior, type="l")
 
@@ -75,3 +80,8 @@ p2 <- hist(x, breaks=14)
 
 plot( p1, col=rgb(0,0,1,1/8), xlim=c(0,6))  # first histogram
 plot( p2, col=rgb(1,0,0,1/8), xlim=c(0,6), add=T)
+
+plot(theta, l1, ylim=c(-200, 20), col="red")
+points(theta, l2)
+
+points(theta, l1 + l2, col="green")
